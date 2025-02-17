@@ -1,101 +1,72 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from "react";
+import { FaWallet, FaUsers, FaUserPlus, FaServer, FaTasks, FaInbox } from "react-icons/fa";
+import { Bar, Line, Doughnut } from "react-chartjs-2";
+import { Chart, registerables } from "chart.js";
 
-export default function Home() {
+Chart.register(...registerables);
+
+const Dashboard = () => {
+  const [userData, setUserData] = useState<number[]>([]);
+  const [transactionData, setTransactionData] = useState<number[]>([]);
+
+  useEffect(() => {
+    setUserData([50, 75, 100, 125, 150, 175, 200]);
+    setTransactionData([30, 45, 80, 90, 120, 140, 160]);
+  }, []);
+
+  const metrics = [
+    { title: "Total Revenue", value: "$3249", icon: FaWallet, color: "bg-green-600" },
+    { title: "Total Users", value: "249", icon: FaUsers, color: "bg-pink-600" },
+    { title: "New Users", value: "2", icon: FaUserPlus, color: "bg-yellow-600" },
+    { title: "Server Uptime", value: "152 days", icon: FaServer, color: "bg-blue-600" },
+    { title: "To Do List", value: "7 tasks", icon: FaTasks, color: "bg-indigo-600" },
+    { title: "Issues", value: "3", icon: FaInbox, color: "bg-red-600" },
+  ];
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="bg-black min-h-screen pt-20 container mx-auto p-8 text-gray-800">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {metrics.map((metric, index) => (
+          <div key={index} className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl">
+            <div className="flex items-center">
+              <div className={`rounded p-4 ${metric.color}`}>
+                <metric.icon className="text-white text-3xl" />
+              </div>
+              <div className="flex-1 text-right md:text-center">
+                <h5 className="font-bold uppercase text-gray-400">{metric.title}</h5>
+                <h3 className="font-bold text-4xl text-gray-300">{metric.value}</h3>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <hr className="border-gray-600 my-8" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
+          <h5 className="font-bold uppercase text-gray-600 border-b border-gray-800 pb-2">User Growth</h5>
+          <div className="p-5">
+            <Line data={{ labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"], datasets: [{ label: "Users", data: userData, borderColor: "rgb(54, 162, 235)", backgroundColor: "rgba(54, 162, 235, 0.2)" }] }} />
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        <div className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
+          <h5 className="font-bold uppercase text-gray-600 border-b border-gray-800 pb-2">Transaction Growth</h5>
+          <div className="p-5">
+            <Bar data={{ labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"], datasets: [{ label: "Transactions", data: transactionData, backgroundColor: "rgba(255, 99, 132, 0.2)", borderColor: "rgb(255, 99, 132)" }] }} />
+          </div>
+        </div>
+        <div className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
+          <h5 className="font-bold uppercase text-gray-600 border-b border-gray-800 pb-2">User vs Transactions</h5>
+          <div className="p-5">
+            <Doughnut data={{ labels: ["Users", "Transactions"], datasets: [{ data: [userData.reduce((a, b) => a + b, 0), transactionData.reduce((a, b) => a + b, 0)], backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"] }] }} />
+          </div>
+        </div>
+      </div>
+      <footer className=" text-gray-400 text-center py-4 mt-12">
+        <p>&copy; {new Date().getFullYear()} Admin Dashboard. All rights reserved.</p>
       </footer>
     </div>
   );
-}
+};
+
+export default Dashboard;
