@@ -25,17 +25,17 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="bg-black min-h-screen pt-20 container mx-auto p-8 text-gray-800">
+    <div className="bg-white min-h-screen pt-20 container mx-auto p-8 text-black">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {metrics.map((metric, index) => (
-          <div key={index} className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl">
+          <div key={index} className="bg-white border border-black rounded shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl rounded-lg">
             <div className="flex items-center">
               <div className={`rounded p-4 ${metric.color}`}>
                 <metric.icon className="text-white text-3xl" />
               </div>
               <div className="flex-1 text-right md:text-center">
-                <h5 className="font-bold uppercase text-gray-400">{metric.title}</h5>
-                <h3 className="font-bold text-4xl text-gray-300">{metric.value}</h3>
+                <h5 className="font-bold uppercase text-black">{metric.title}</h5>
+                <h3 className="font-bold text-4xl text-black">{metric.value}</h3>
               </div>
             </div>
           </div>
@@ -43,26 +43,26 @@ const Dashboard = () => {
       </div>
       <hr className="border-gray-600 my-8" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
+        <div className="bg-white border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
           <h5 className="font-bold uppercase text-gray-600 border-b border-gray-800 pb-2">User Growth</h5>
           <div className="p-5">
             <Line data={{ labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"], datasets: [{ label: "Users", data: userData, borderColor: "rgb(54, 162, 235)", backgroundColor: "rgba(54, 162, 235, 0.2)" }] }} />
           </div>
         </div>
-        <div className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
+        <div className="bg-white border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
           <h5 className="font-bold uppercase text-gray-600 border-b border-gray-800 pb-2">Transaction Growth</h5>
           <div className="p-5">
             <Bar data={{ labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"], datasets: [{ label: "Transactions", data: transactionData, backgroundColor: "rgba(255, 99, 132, 0.2)", borderColor: "rgb(255, 99, 132)" }] }} />
           </div>
         </div>
-        <div className="bg-gray-900 border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
+        <div className="bg-white border border-gray-800 rounded shadow-lg p-6 hover:scale-105 transition">
           <h5 className="font-bold uppercase text-gray-600 border-b border-gray-800 pb-2">User vs Transactions</h5>
           <div className="p-5">
             <Doughnut data={{ labels: ["Users", "Transactions"], datasets: [{ data: [userData.reduce((a, b) => a + b, 0), transactionData.reduce((a, b) => a + b, 0)], backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"] }] }} />
           </div>
         </div>
       </div>
-      <footer className=" text-gray-400 text-center py-4 mt-12">
+      <footer className=" text-black text-center py-4 mt-12">
         <p>&copy; {new Date().getFullYear()} Admin Dashboard. All rights reserved.</p>
       </footer>
     </div>
