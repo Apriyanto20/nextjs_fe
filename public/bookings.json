@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "roomId": 101,
+        "userId": 1,
+        "startDate": "2024-03-20",
+        "endDate": "2024-03-22",
+        "bookingDate": "2024-03-18"
+    },
+    {
+        "id": 2,
+        "roomId": 102,
+        "userId": 2,
+        "startDate": "2024-04-10",
+        "endDate": "2024-04-15",
+        "bookingDate": "2024-04-08"
+    },
+    {
+        "id": 3,
+        "roomId": 103,
+        "userId": 3,
+        "startDate": "2024-05-01",
+        "endDate": "2024-05-05",
+        "bookingDate": "2024-04-29"
+    },
+    {
+        "id": 4,
+        "roomId": 104,
+        "userId": 4,
+        "startDate": "2024-06-12",
+        "endDate": "2024-06-14",
+        "bookingDate": "2024-06-10"
+    },
+    {
+        "id": 5,
+        "roomId": 105,
+        "userId": 5,
+        "startDate": "2024-07-07",
+        "endDate": "2024-07-10",
+        "bookingDate": "2024-07-05"
+    },
+    {
+        "id": 6,
+        "roomId": 106,
+        "userId": 6,
+        "startDate": "2024-08-15",
+        "endDate": "2024-08-20",
+        "bookingDate": "2024-08-13"
+    },
+    {
+        "id": 7,
+        "roomId": 107,
+        "userId": 7,
+        "startDate": "2024-09-01",
+        "endDate": "2024-09-04",
+        "bookingDate": "2024-08-30"
+    },
+    {
+        "id": 8,
+        "roomId": 108,
+        "userId": 8,
+        "startDate": "2024-10-05",
+        "endDate": "2024-10-08",
+        "bookingDate": "2024-10-03"
+    },
+    {
+        "id": 9,
+        "roomId": 109,
+        "userId": 9,
+        "startDate": "2024-11-12",
+        "endDate": "2024-11-16",
+        "bookingDate": "2024-11-10"
+    },
+    {
+        "id": 10,
+        "roomId": 110,
+        "userId": 10,
+        "startDate": "2024-12-20",
+        "endDate": "2024-12-25",
+        "bookingDate": "2024-12-18"
+    }
+]

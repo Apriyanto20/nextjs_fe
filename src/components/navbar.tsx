@@ -18,19 +18,18 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="hidden md:flex space-x-6">
-          {['Home', 'Users', 'Messages', 'Analytics'].map((menu, index) => (
-            <a
-              key={index}
-              href="#"
-              className={`text-black hover:text-gray-600 relative transition duration-300 after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:scale-x-0 after:transition-transform after:duration-300 after:hover:scale-x-100 ${index === 0 ? 'after:bg-blue-400' :
-                  index === 1 ? 'after:bg-green-400' :
-                    index === 2 ? 'after:bg-red-400' :
-                      'after:bg-yellow-400'
-                }`}
-            >
-              {menu}
-            </a>
-          ))}
+          <a href="/" className="text-black hover:text-gray-600 relative transition duration-300 after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:scale-x-0 after:transition-transform after:duration-300 after:hover:scale-x-100 after:bg-blue-400">
+            Home
+          </a>
+          <a href="/users" className="text-black hover:text-gray-600 relative transition duration-300 after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:scale-x-0 after:transition-transform after:duration-300 after:hover:scale-x-100 after:bg-green-400">
+            Users
+          </a>
+          <a href="/rooms" className="text-black hover:text-gray-600 relative transition duration-300 after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:scale-x-0 after:transition-transform after:duration-300 after:hover:scale-x-100 after:bg-red-400">
+            Room Management
+          </a>
+          <a href="/bookings" className="text-black hover:text-gray-600 relative transition duration-300 after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:scale-x-0 after:transition-transform after:duration-300 after:hover:scale-x-100 after:bg-yellow-400">
+            Bookings
+          </a>
         </div>
 
         <div className="flex items-center space-x-4">
