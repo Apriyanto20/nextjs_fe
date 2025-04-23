@@ -6,17 +6,17 @@ import { useAuth } from "../../context/AuthContext";
 
 const RegisterPage: React.FC = () => {
     const router = useRouter();
-    const { register } = useAuth(); // pastikan fungsi register tersedia di context
+    const { register } = useAuth();
 
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
-        register(); // set context jadi sudah register / login
-        router.push("/"); // redirect ke halaman utama
+        register();
+        router.push("/");
     };
 
     return (
-        <div className="font-sans">
-            <div className="relative min-h-screen flex flex-col sm:justify-center items-center bg-gray-100">
+        <div className="font-sans h-screen overflow-y-auto bg-gray-100 pt-20">
+            <div className="relative min-h-full flex flex-col sm:justify-center items-center py-10 px-4">
                 <div className="relative sm:max-w-sm w-full">
                     <div className="card bg-green-400 shadow-lg w-full h-full rounded-3xl absolute transform -rotate-6" />
                     <div className="card bg-yellow-400 shadow-lg w-full h-full rounded-3xl absolute transform rotate-6" />
