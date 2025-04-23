@@ -69,6 +69,12 @@ export default function UsersPage() {
         <div className="container mx-auto px-4 py-6 mt-16">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-xl font-bold">Users</h1>
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                    Add User
+                </button>
             </div>
 
             <input
@@ -78,6 +84,7 @@ export default function UsersPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
+
             <div className="mb-4 text-gray-500">
                 <table className="w-full border-collapse bg-white shadow-md rounded-lg">
                     <thead>
@@ -95,12 +102,6 @@ export default function UsersPage() {
                                 <td className="p-3 text-gray-500">{user.name}</td>
                                 <td className="p-3 text-gray-500">{user.email}</td>
                                 <td className="p-3 flex space-x-2">
-                                    <button
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="px-2 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                    >
-                                        Add user
-                                    </button>
                                     <button
                                         onClick={() => {
                                             setEditingUser(user);
@@ -178,4 +179,5 @@ export default function UsersPage() {
             <EditUserModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} user={editingUser} onEditUser={handleEditUser} />
         </div>
     );
+
 }
