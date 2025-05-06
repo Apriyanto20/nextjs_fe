@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Navbar from "@/components/navbar";
+import { useAuth } from "@app/context/AuthContext";
 import AddUserModal from "./adduserform"; // Komponen untuk menambah user
-import EditUserModal from "./edituserform"; // Komponen untuk mengedit user
+import EditUserModal from "./edituserform";
+// Komponen untuk mengedit user
 
 type User = {
     id: number;
@@ -27,6 +30,8 @@ export default function UsersPage() {
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const itemsPerPage = 10;
     const pagesPerView = 5;
+    const { isLoggedIn } = useAuth();
+    // const router = useRouter();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,6 +44,13 @@ export default function UsersPage() {
         };
         fetchData();
     }, []);
+    // useEffect(() => {
+    //     if (!isLoggedIn) {
+    //         router.push("/login");
+    //     }
+    // }, [isLoggedIn]);
+
+    // if (!isLoggedIn) return null;
 
     const handleEditUser = (updatedUser: User) => {
         setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));

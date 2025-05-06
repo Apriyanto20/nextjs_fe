@@ -1,173 +1,279 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import AddRoomModal from "./AddRoomModal";
-import EditRoomModal from "./EditRoomModal";
+import { useEffect, useState } from "react";
 
 type Room = {
     id: number;
     name: string;
-    description: string;
-    categoryId: string;
-    userId: string;
-    image: string;
-    capacity: number;
+    categoryId: number;
     price: number;
-    status: string;
+    capacity: number;
+    description: string;
 };
 
-async function getRooms(): Promise<Room[]> {
-    // Simulasi fetch data
-    return [
-        { id: 1, name: "Room A", description: "Luxury room", categoryId: "1", userId: "101", image: "img1.jpg", capacity: 2, price: 100, status: "Available" },
-        { id: 2, name: "Room B", description: "Standard room", categoryId: "2", userId: "102", image: "img2.jpg", capacity: 3, price: 80, status: "Booked" }
-    ];
-}
-
-export default function RoomPage() {
+export default function RoomsTable() {
     const [rooms, setRooms] = useState<Room[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [error, setError] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingRoom, setEditingRoom] = useState<Room | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const pagesPerView = 5;
+    const [isLoading, setIsLoading] = useState(false);
+    const [newRoom, setNewRoom] = useState({
+        name: "",
+        categoryId: 2, // Default value sesuai contoh API
+        price: 0,
+        capacity: 0,
+        description: "",
+    });
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getRooms();
-                setRooms(data);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchData();
+        fetchRooms();
     }, []);
 
-    const handleAddRoom = (newRoom: Room) => {
-        setRooms([...rooms, { ...newRoom, id: Date.now() }]);
-        alert("Room berhasil ditambahkan!");
+    const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return '';
     };
 
-    const handleEditRoom = (updatedRoom: Room) => {
-        setRooms(rooms.map((room) => (room.id === updatedRoom.id ? updatedRoom : room)));
-        setIsEditModalOpen(false);
-    };
+    const fetchRooms = async () => {
+        // 1. Ambil token dan cookie
+        const token = localStorage.getItem("token");
+        const cookie = getCookie('sessionId'); // Ganti dengan nama cookie sebenarnya
+        
+        
+        // 2. Validasi token
+        if (!token) {
+            setError("Token tidak ditemukan. Silakan login ulang.");
+            return;
+        }
 
-    const handleDeleteRoom = (roomId: number) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus room ini?")) {
-            setRooms(rooms.filter((room) => room.id !== roomId));
+        try {
+            // 3. Tambahkan timeout untuk fetch
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout 10 detik
+
+            // 4. Lakukan request
+            const res = await fetch("https://simaru.amisbudi.cloud/api/rooms?status=approved", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    'Cookie': `sessionId=${getCookie('sessionId')}`, // Format cookie yang benar
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Origin": "http://localhost:3000"
+                },
+                credentials: "include",
+            });
+
+            clearTimeout(timeoutId); // Clear timeout jika request berhasil
+
+            // 5. Handle response
+            if (!res.ok) {
+                // Coba parse error message dari response
+                const errorData = await res.json().catch(() => ({
+                    message: `HTTP error! Status: ${res.status}`
+                }));
+
+                // Handle khusus untuk status 401 (Unauthorized)
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    throw new Error("Sesi telah berakhir. Silakan login kembali");
+                }
+
+                throw new Error(errorData.message || `Gagal mengambil data. Status: ${res.status}`);
+            }
+
+            // 6. Parse data
+            const data = await res.json();
+
+            // 7. Validasi struktur data
+            if (!Array.isArray(data?.data)) {
+                throw new Error("Format data tidak valid dari server");
+            }
+
+            // 8. Update state
+            setRooms(data.data);
+            setError(""); // Clear error jika sebelumnya ada
+
+        } catch (err: any) {
+            // 9. Error handling spesifik
+            if (err.name === 'AbortError') {
+                setError("Request timeout. Coba lagi atau periksa koneksi internet Anda");
+            } else if (err.message.includes("Failed to fetch")) {
+                setError("Tidak dapat terhubung ke server. Periksa koneksi internet Anda");
+            } else {
+                setError(err.message || "Terjadi kesalahan saat mengambil data ruangan");
+            }
+
+            console.error("Detail error:", {
+                error: err,
+                time: new Date().toISOString(),
+                endpoint: "rooms?status=approved"
+            });
+
+            // 10. Reset data jika error
+            setRooms([]);
         }
     };
 
-    const filteredRooms = rooms.filter((room) => room.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handleAddRoom = async () => {
+        const token = localStorage.getItem("token");
+        const cookie = getCookie('your_cookie_name'); // Ganti dengan nama cookie sebenarnya
 
-    const totalPages = Math.ceil(filteredRooms.length / itemsPerPage);
-    const displayedRooms = filteredRooms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    const startPage = Math.floor((currentPage - 1) / pagesPerView) * pagesPerView + 1;
-    const endPage = Math.min(startPage + pagesPerView - 1, totalPages);
+        if (!token) {
+            setError("Token tidak ditemukan. Silakan login ulang.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError("");
+
+        try {
+            // Validasi lebih ketat
+            if (!newRoom.name.trim()) {
+                throw new Error("Nama ruangan harus diisi");
+            }
+            if (newRoom.capacity <= 0) {
+                throw new Error("Kapasitas harus lebih dari 0");
+            }
+
+            const response = await fetch("https://simaru.amisbudi.cloud/api/rooms", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                    "Cookie": `your_cookie_name=${cookie}`, // Sesuaikan format
+                    "Accept": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    name: newRoom.name,
+                    categoryId: newRoom.categoryId,
+                    price: newRoom.price,
+                    capacity: newRoom.capacity,
+                    description: newRoom.description
+                })
+            });
+
+            // Debugging response
+            console.log("Response status:", response.status);
+            const responseData = await response.json();
+            console.log("Response data:", responseData);
+
+            if (!response.ok) {
+                throw new Error(responseData.message || `Error ${response.status}: Gagal menambahkan ruangan`);
+            }
+
+            await fetchRooms();
+            setIsModalOpen(false);
+            setNewRoom({
+                name: "",
+                categoryId: 2,
+                price: 0,
+                capacity: 0,
+                description: "",
+            });
+
+        } catch (err: any) {
+            console.error("Full error:", err);
+            setError(err.message || "Terjadi kesalahan tidak terduga");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <div className="container mx-auto px-4 py-6 mt-16">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-xl font-bold">Room Management</h1>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                    Tambah Room
-                </button>
-            </div>
+        <div className="p-4">
+            <h2 className="text-lg font-semibold mb-4">Daftar Ruangan Disetujui</h2>
+            {error && <p className="text-red-500">{error}</p>}
 
-            <input
-                type="text"
-                placeholder="Search rooms..."
-                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <button
+                className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+                onClick={() => setIsModalOpen(true)}
+            >
+                Tambah Data
+            </button>
 
-            <table className="w-full border-collapse bg-white shadow-md rounded-lg">
+            <table className="min-w-full bg-white border">
                 <thead>
                     <tr className="bg-gray-100 text-left">
-                        <th className="p-3">No</th>
-                        <th className="p-3">Name</th>
-                        <th className="p-3">Capacity</th>
-                        <th className="p-3">Price</th>
-                        <th className="p-3">Status</th>
-                        <th className="p-3">Actions</th>
+                        <th className="py-2 px-4 border">Name</th>
+                        <th className="py-2 px-4 border">Category</th>
+                        <th className="py-2 px-4 border">Price</th>
+                        <th className="py-2 px-4 border">Capacity</th>
+                        <th className="py-2 px-4 border">Description</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {displayedRooms.map((room, index) => (
-                        <tr key={room.id} className="border-t hover:bg-gray-50">
-                            <td className="p-3">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                            <td className="p-3 text-gray-500">{room.name}</td>
-                            <td className="p-3 text-gray-500">{room.capacity}</td>
-                            <td className="p-3 text-gray-500">${room.price}</td>
-                            <td className="p-3 text-gray-500">{room.status}</td>
-                            <td className="p-3 flex space-x-2">
-                                <button
-                                    onClick={() => {
-                                        setEditingRoom(room);
-                                        setIsEditModalOpen(true);
-                                    }}
-                                    className="px-2 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteRoom(room.id)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                                >
-                                    Hapus
-                                </button>
-                            </td>
+                    {rooms.map((room) => (
+                        <tr key={room.id}>
+                            <td className="py-2 px-4 border">{room.name}</td>
+                            <td className="py-2 px-4 border">{room.categoryId}</td>
+                            <td className="py-2 px-4 border">Rp {room.price.toLocaleString()}</td>
+                            <td className="py-2 px-4 border">{room.capacity}</td>
+                            <td className="py-2 px-4 border">{room.description}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            <nav aria-label="Page navigation" className="flex justify-center mt-6">
-                <ul className="flex items-center space-x-1">
-                    <li>
-                        <button
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className={`px-3 h-8 leading-tight border rounded-s-lg ${currentPage === 1 ? "text-gray-400 bg-gray-200 cursor-not-allowed" : "text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                                }`}
-                        >
-                            &laquo;
-                        </button>
-                    </li>
-                    {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
-                        <li key={page}>
-                            <button
-                                onClick={() => setCurrentPage(page)}
-                                className={`px-3 h-8 leading-tight border ${currentPage === page ? "text-white bg-blue-600 border-blue-300" : "text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        </li>
-                    ))}
-                    <li>
-                        <button
-                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            className={`px-3 h-8 leading-tight border rounded-e-lg ${currentPage === totalPages ? "text-gray-400 bg-gray-200 cursor-not-allowed" : "text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                                }`}
-                        >
-                            &raquo;
-                        </button>
-                    </li>
-                </ul>
-            </nav>
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded shadow-lg w-[90%] max-w-md">
+                        <h3 className="text-lg font-semibold mb-4">Tambah Data Room</h3>
 
-            <AddRoomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddRoom={handleAddRoom} />
-            <EditRoomModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} room={editingRoom} onEditRoom={handleEditRoom} />
+                        <input
+                            className="border p-2 w-full mb-2"
+                            placeholder="Name"
+                            value={newRoom.name}
+                            onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value })}
+                        />
+                        <input
+                            className="border p-2 w-full mb-2"
+                            placeholder="Category ID"
+                            type="number"
+                            value={newRoom.categoryId}
+                            onChange={(e) => setNewRoom({ ...newRoom, categoryId: Number(e.target.value) })}
+                        />
+                        <input
+                            className="border p-2 w-full mb-2"
+                            placeholder="Price"
+                            type="number"
+                            value={newRoom.price}
+                            onChange={(e) => setNewRoom({ ...newRoom, price: Number(e.target.value) })}
+                        />
+                        <input
+                            className="border p-2 w-full mb-2"
+                            placeholder="Capacity"
+                            type="number"
+                            value={newRoom.capacity}
+                            onChange={(e) => setNewRoom({ ...newRoom, capacity: Number(e.target.value) })}
+                        />
+                        <textarea
+                            className="border p-2 w-full mb-4"
+                            placeholder="Description"
+                            value={newRoom.description}
+                            onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
+                        />
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                className="bg-gray-400 text-white px-4 py-2 rounded"
+                                onClick={() => setIsModalOpen(false)}
+                            >
+                                Batal
+                            </button>
+                            <button
+                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                                onClick={handleAddRoom}
+                            >
+                                Simpan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

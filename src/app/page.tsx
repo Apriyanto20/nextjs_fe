@@ -11,7 +11,7 @@ export default function LandingPage() {
           <p className="text-gray-500 mb-5">
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Veniam facere ea totam labore vitae autem.
           </p>
-          <button className="bg-red-500 text-white px-4 py-2 rounded-3xl">Create Account</button>
+          <a href="/register" className="bg-red-500 text-white px-4 py-2 rounded-3xl">Create Account</a>
         </div>
         <Image className="md:w-3/6" src="/img/hero.jpg" alt="Hero" width={500} height={300} />
       </section>

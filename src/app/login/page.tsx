@@ -1,114 +1,98 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 
 const LoginPage: React.FC = () => {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login } = useAuth(); // dari Context kamu
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        login(); // set context jadi logged in
-        router.push("/"); // redirect ke halaman utama
+        setError("");
+
+        try {
+            const res = await fetch("https://simaru.amisbudi.cloud/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Login gagal");
+            }
+
+            // Simpan token jika perlu
+            localStorage.setItem("token", data.access_token);
+
+
+            // Panggil context login
+            login(data); // simpan user/token ke context
+
+            // Redirect ke halaman utama/dashboard
+            router.push("/");
+        } catch (err: any) {
+            setError(err.message || "Terjadi kesalahan");
+        }
     };
 
     return (
         <div className="font-sans h-screen overflow-y-auto bg-gray-100 pt-20">
             <div className="relative min-h-screen flex flex-col sm:justify-center items-center bg-gray-100">
                 <div className="relative sm:max-w-sm w-full">
+                    {/* Card layer */}
                     <div className="card bg-blue-400 shadow-lg w-full h-full rounded-3xl absolute transform -rotate-6" />
                     <div className="card bg-red-400 shadow-lg w-full h-full rounded-3xl absolute transform rotate-6" />
                     <div className="relative w-full rounded-3xl px-6 py-4 bg-gray-100 shadow-md">
                         <label className="block mt-3 text-sm text-gray-700 text-center font-semibold">
                             Login
                         </label>
-                        <form method="#" action="#" className="mt-10" onSubmit={handleLogin}>
-                            <div>
-                                <input
-                                    type="email"
-                                    placeholder="Masukan Email"
-                                    className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
-                                />
-                            </div>
 
-                            <div className="mt-7">
-                                <input
-                                    type="password"
-                                    placeholder="Masukan Password"
-                                    className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
-                                />
-                            </div>
+                        <form className="mt-10" onSubmit={handleLogin}>
+                            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
-                            <div className="mt-7 flex">
-                                <label
-                                    htmlFor="remember_me"
-                                    className="inline-flex items-center w-full cursor-pointer"
-                                >
-                                    <input
-                                        id="remember_me"
-                                        type="checkbox"
-                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        name="remember"
-                                    />
-                                    <span className="ml-2 text-sm text-gray-600">Ingatkan saya</span>
-                                </label>
+                            <input
+                                type="email"
+                                placeholder="Masukan Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                                required
+                            />
 
-                                <div className="w-full text-right">
-                                    <a
-                                        className="underline text-sm text-gray-600 hover:text-gray-900"
-                                        href="#"
-                                    >
-                                        Lupa Password?
-                                    </a>
-                                </div>
-                            </div>
+                            <input
+                                type="password"
+                                placeholder="Masukan Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="mt-7 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                                required
+                            />
 
-                            <div className="mt-7">
-                                <button
-                                    type="submit"
-                                    className="bg-blue-500 w-full py-3 rounded-xl text-white shadow-xl hover:shadow-inner focus:outline-none transition duration-500 ease-in-out transform hover:-translate-x hover:scale-105"
-                                >
-                                    Login
-                                </button>
-                            </div>
+                            {/* ... form lainnya tetap sama ... */}
 
-                            <div className="flex mt-7 items-center text-center">
-                                <hr className="border-gray-300 border-1 w-full rounded-md" />
-                                <label className="block font-medium text-sm text-gray-600 w-full">
-                                    Masuk dengan
-                                </label>
-                                <hr className="border-gray-300 border-1 w-full rounded-md" />
-                            </div>
+                            <button
+                                type="submit"
+                                className="bg-blue-500 w-full py-3 mt-7 rounded-xl text-white shadow-xl hover:shadow-inner focus:outline-none transition duration-500 ease-in-out transform hover:-translate-x hover:scale-105"
+                            >
+                                Login
+                            </button>
 
-                            <div className="flex mt-7 justify-center w-full">
-                                <button
-                                    type="button"
-                                    className="mr-5 bg-blue-500 border-none px-4 py-2 rounded-xl cursor-pointer text-white shadow-xl hover:shadow-inner transition duration-500 ease-in-out transform hover:-translate-x hover:scale-105"
-                                >
-                                    Facebook
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="bg-red-500 border-none px-4 py-2 rounded-xl cursor-pointer text-white shadow-xl hover:shadow-inner transition duration-500 ease-in-out transform hover:-translate-x hover:scale-105"
-                                >
-                                    Google
-                                </button>
-                            </div>
-
-                            <div className="mt-7">
-                                <div className="flex justify-center items-center">
-                                    <label className="mr-2">Belum punya akun?</label>
-                                    <a
-                                        href="/register"
-                                        className="text-blue-500 transition duration-500 ease-in-out transform hover:-translate-x hover:scale-105"
-                                    >
-                                        Daftar disini
-                                    </a>
-                                </div>
+                            <div className="mt-7 flex justify-center items-center">
+                                <span className="text-sm">Belum punya akun?</span>
+                                <Link href="/register" className="text-blue-500 ml-2">
+                                    Daftar disini
+                                </Link>
                             </div>
                         </form>
                     </div>

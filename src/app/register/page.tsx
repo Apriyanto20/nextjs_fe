@@ -1,17 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 
 const RegisterPage: React.FC = () => {
     const router = useRouter();
-    const { register } = useAuth();
+    const { login } = useAuth(); // login otomatis setelah register (opsional)
 
-    const handleRegister = (e: React.FormEvent) => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
+    const [error, setError] = useState('');
+
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        register();
-        router.push("/");
+        setError('');
+
+        try {
+            const res = await fetch('https://simaru.amisbudi.cloud/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    password_confirmation: passwordConfirmation,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Gagal mendaftar');
+            }
+
+            localStorage.setItem('token', data.access_token);
+            login(data); // atau langsung login jika konteks mendukung
+            router.push('/');
+        } catch (err: any) {
+            setError(err.message);
+        }
     };
 
     return (
@@ -24,11 +57,17 @@ const RegisterPage: React.FC = () => {
                         <label className="block mt-3 text-sm text-gray-700 text-center font-semibold">
                             Daftar Akun
                         </label>
-                        <form method="#" action="#" className="mt-10" onSubmit={handleRegister}>
+                        {error && (
+                            <div className="text-red-500 text-sm text-center mt-2">{error}</div>
+                        )}
+                        <form className="mt-10" onSubmit={handleRegister}>
                             <div>
                                 <input
                                     type="text"
                                     placeholder="Nama Lengkap"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
                                     className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-green-100 focus:bg-green-100 focus:ring-0"
                                 />
                             </div>
@@ -37,6 +76,9 @@ const RegisterPage: React.FC = () => {
                                 <input
                                     type="email"
                                     placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
                                     className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-green-100 focus:bg-green-100 focus:ring-0"
                                 />
                             </div>
@@ -45,6 +87,9 @@ const RegisterPage: React.FC = () => {
                                 <input
                                     type="password"
                                     placeholder="Kata Sandi"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
                                     className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-green-100 focus:bg-green-100 focus:ring-0"
                                 />
                             </div>
@@ -53,6 +98,9 @@ const RegisterPage: React.FC = () => {
                                 <input
                                     type="password"
                                     placeholder="Ulangi Kata Sandi"
+                                    value={passwordConfirmation}
+                                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                    required
                                     className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-green-100 focus:bg-green-100 focus:ring-0"
                                 />
                             </div>
